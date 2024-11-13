@@ -1,39 +1,34 @@
 package org.example;
 
-import java.util.List;
+
+import com.github.javafaker.Faker;
+
+import java.util.stream.IntStream;
+
+import static java.lang.System.out;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\denis\\Downloads\\pr2.csv";
-        //String filePath = "https://informer.com.ua/dut/java/pr2.csv";
-        List<Transaction> transactions = TransactionCSVReader.readTransactions(filePath);
+        var faker = new Faker();
+        OrderProcessor<Electronics> electronicsOrder = new OrderProcessor<>(new Electronics(faker.pokemon().name(),faker.pokemon().hashCode(), faker.pokemon().location()));
 
-        TransactionReportGenerator.printAllData(transactions);
+        var clothingList  = IntStream.range(0, 1000).mapToObj(i -> Clothing.builder()
+                        .name(faker.commerce().productName())
+                        .price(Double.parseDouble(faker.commerce().price().replace(",", ".")))
+                        .description(faker.lebowski().quote())
+                        .build())
+                .toList();
+        clothingList.parallelStream()
+                .map(OrderProcessor::new)
+                .forEach(OrderProcessor::startProcessing);
 
-        double totalBalance = TransactionAnalyzer.calculateTotalBalance(transactions);
-
-        System.out.println("-------------------");
-        TransactionReportGenerator.printBalanceReport(totalBalance);
-
-        String monthYear = "01-2024";
-        int transactionsCount = TransactionAnalyzer.countTransactionsByMonth(monthYear, transactions);
-        TransactionReportGenerator.printTransactionsCountByMonth(monthYear, transactionsCount);
-
-        System.out.println("-------------------");
-
-        List<Transaction> topExpenses = TransactionAnalyzer.findTopExpenses(transactions);
-        TransactionReportGenerator.printTopExpensesReport(topExpenses);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printLargestExpense(transactions, monthYear);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printSmallestExpense(transactions, monthYear);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printExpenseSummary(transactions);
-    }
-}
+//
+////        electronicsOrder.process();
+//        var clothing = Clothing.builder()
+//                .name(faker.pokemon().name())
+//                .price((double) faker.pokemon().hashCode())
+//                .description(faker.lebowski().quote())
+//                .build();
+////
+        clothingList.stream().map(OrderProcessor::new).forEach(OrderProcessor::process);
+}}
