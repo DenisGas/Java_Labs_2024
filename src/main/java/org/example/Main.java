@@ -1,39 +1,64 @@
 package org.example;
 
-import java.util.List;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\denis\\Downloads\\pr2.csv";
-        //String filePath = "https://informer.com.ua/dut/java/pr2.csv";
-        List<Transaction> transactions = TransactionCSVReader.readTransactions(filePath);
 
-        TransactionReportGenerator.printAllData(transactions);
+        try (Scanner scanner = new Scanner(System.in)) {
+            String operation = getOperationInput(scanner);
 
-        double totalBalance = TransactionAnalyzer.calculateTotalBalance(transactions);
+            double result;
+            if (operation.equals("sqrt")) {
+                
+                double a = getDoubleInput(scanner, "Введіть число для обчислення квадратного кореня: ");
+                result = Calculator.squareRoot(a);
+            } else {
+                
+                double a = getDoubleInput(scanner, "Введіть перше число: ");
+                double b = getDoubleInput(scanner, "Введіть друге число: ");
 
-        System.out.println("-------------------");
-        TransactionReportGenerator.printBalanceReport(totalBalance);
+                
+                result = switch (operation) {
+                    case "+" -> Calculator.sum(a, b);
+                    case "-" -> Calculator.difference(a, b);
+                    case "*" -> Calculator.multiplication(a, b);
+                    case "/" -> Calculator.division(a, b);
+                    default -> throw new InvalidInputException("Невірна операція: " + operation);
+                };
+            }
 
-        String monthYear = "01-2024";
-        int transactionsCount = TransactionAnalyzer.countTransactionsByMonth(monthYear, transactions);
-        TransactionReportGenerator.printTransactionsCountByMonth(monthYear, transactionsCount);
+            System.out.println("Результат: " + result);
 
-        System.out.println("-------------------");
-
-        List<Transaction> topExpenses = TransactionAnalyzer.findTopExpenses(transactions);
-        TransactionReportGenerator.printTopExpensesReport(topExpenses);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printLargestExpense(transactions, monthYear);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printSmallestExpense(transactions, monthYear);
-
-        System.out.println("-------------------");
-
-        TransactionReportGenerator.printExpenseSummary(transactions);
+        } catch (ArithmeticException | InvalidInputException e) {
+            System.out.println("Помилка: " + e.getMessage());
+        } finally {
+            System.out.println("Дякуємо за використання калькулятора!");
+        }
     }
+
+
+    private static double getDoubleInput(Scanner scanner, String prompt) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                return scanner.nextDouble();
+            } catch (InputMismatchException e) {
+                System.out.println("Помилка: введено некоректне значення. Будь ласка, введіть число.");
+                scanner.next();
+            }
+        }
+    }
+
+    private static String getOperationInput(Scanner scanner) throws InvalidInputException {
+        System.out.print("Виберіть операцію (+, -, *, /, sqrt): ");
+
+        String operation = scanner.next().toLowerCase();
+        return switch (operation) {
+            case "+", "-", "*", "/", "sqrt" -> operation;
+            default -> throw new InvalidInputException("Невірна операція: " + operation);
+        };
+    }
+
 }
