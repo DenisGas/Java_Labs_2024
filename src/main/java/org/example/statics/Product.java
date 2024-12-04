@@ -1,14 +1,14 @@
-package org.example;
+package org.example.statics;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+@Getter
 @Data
 @AllArgsConstructor
-public class Product {
+public abstract class Product {
     private String name;
-    private Double price;
-    private String description;
+    private double price;
+
 }
